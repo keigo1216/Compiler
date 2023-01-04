@@ -1,34 +1,143 @@
 use std::env;
+use std::collections::VecDeque;
 
-//与えられた文字列リテラルを+と-区切りで分ける
-fn split_string(s: &str) -> Vec<&str> {
-    let mut v: Vec<&str> = Vec::new();
+#[derive(Debug, PartialEq)]
+enum TokenKind {
+    ADD,    //足し算の記号
+    SUB,    //引き算の記号
+    TKNUM,  // 整数トークン
+    TKEOF,  // 入力の終わりを表すトークン
+}
 
-    let mut begin = 0;
-    let mut end = 0;
+#[derive(Debug)]
+struct Token {
+    kind: TokenKind,
+    val: Option<i32>,
+}
 
-    for c in s.chars() { //文字列を文字ごとに取得
-        if c == '+' {
-            v.push(&s[begin..end]);
-            v.push("+");
-            end += 1;
-            begin = end;
-        } else if c == '-' {
-            v.push(&s[begin..end]);
-            v.push("-");
-            end += 1;
-            begin = end;
-        } else {
-            end += 1;
+impl Token {
+    pub fn new(kind: TokenKind, val: Option<i32>) -> Token{
+        Token {
+            kind,
+            val, //はじめはNoneで初期化する
         }
     }
-    v.push(&s[begin..]); //一番最後を追加するのを忘れずに
+}
 
+//VecDequeの先頭要素のKindがopと一致したらTrue, それ以外はFalseを返す
+fn consume(token: &mut VecDeque<Token>, op: TokenKind) -> bool{
+    let front_token = token.pop_front();
+
+    match front_token {
+        Some(t) => {
+            if t.kind == op {
+                true
+            }else{
+                token.push_front(t);
+                false
+            }
+        }
+        None => {
+            eprintln!("空です");
+            std::process::exit(1);
+        }
+    }
+}
+
+//VecDequeの先頭要素が数字の時その先頭要素を返し、それ以外の時エラー出力する
+fn expect_number(token: &mut VecDeque<Token>) -> i32{
+    let front_token = token.pop_front();
+    
+    // ネストしすぎなので綺麗に書く方法ないですかね
+    match front_token { //VecDequeが空ならNoneが帰ってくるからそれを弾く
+        Some(t) => {
+            if t.kind == TokenKind::TKNUM { //t.kindが数字の時, 比較するにはTokenKindにPartialEqを実装する
+                match t.val { //valが存在したらその値を返し、存在しなかったらエラー
+                    Some(x) => x,
+                    None => {
+                        eprintln!("数字が有効ではありません");
+                        std::process::exit(1);
+                    }
+                }
+            }else {
+                eprintln!("先頭が数字ではありません");
+                std::process::exit(1);
+            }
+        }
+        None => {
+            eprintln!("空です");
+            std::process::exit(1); 
+        }
+    }
+
+}
+
+//VecDequeの先頭要素のKindがopと一致していなかったらエラー出力する
+//全てのパターンに一致しなかったトークン用
+fn expect(token: &mut VecDeque<Token>, op: TokenKind) {
+    let front_token = token.pop_front();
+
+    match front_token {
+        Some(t) => {
+            if t.kind != op {
+                eprintln!("対応するトークンが存在しません"); //Displayを実装する
+                std::process::exit(1); 
+            }
+        }
+        None => {
+            eprintln!("空です");
+            std::process::exit(1);
+        }
+    }
+}
+
+//sの先頭の数字を取得する
+//数字が一桁とは限らないことに注意
+fn get_digit(s: &mut String) -> Option<i32> {
+
+    let mut d = String::new();
+    while s.len() > 0 {
+        let c = s.chars().nth(0).unwrap();
+
+        if c.is_numeric() {
+            d.push(c);
+            s.remove(0);
+        }else {
+            break;
+        }
+    }
+    let num: i32 = d.parse().unwrap();
+    Some(num)
+}
+
+//トークン列に分解する
+fn tokenize(s: &mut String) -> VecDeque<Token> { //文字列の所有権はこっちに移る
+    
+    let mut v: VecDeque<Token> = VecDeque::new();
+
+    while s.len() > 0 {
+        let c = s.chars().nth(0).unwrap(); //sの先頭要素を取得. スライスで行うのはNG
+
+        if c == ' ' { //空白をスキップ
+            s.remove(0);
+        }else if c == '+' { //足し算の時
+            v.push_back(Token::new(TokenKind::ADD, None));
+            s.remove(0);
+        }else if c == '-' {
+            v.push_back(Token::new(TokenKind::SUB, None));
+            s.remove(0);
+        }else if c.is_numeric() {
+            v.push_back(Token::new(TokenKind::TKNUM, get_digit(s))); //get_digitで削除までしてくれる
+        }else {
+            eprintln!("トークナイズできません");
+        }  
+    }
+    v.push_back(Token::new(TokenKind::TKEOF, None));
     v
 }
 
 fn main() {
-    let argv: Vec<String> = env::args().collect(); //コマンドライン引数を受け取る
+    let mut argv: Vec<String> = env::args().collect(); //コマンドライン引数を受け取る
     let argc = argv.len();
 
     if argc != 2 {
@@ -36,26 +145,25 @@ fn main() {
         std::process::exit(1); 
     }
 
-    let split_string_vec = split_string(&argv[1][..]); //文字列を+-区切りで表す
-    let num_symbol = (split_string_vec.len() - 1) / 2;
-
+    let mut token = tokenize(&mut argv[1]); //コマンドラインで受け取った文字列をトークン列に変換する
     println!(".intel_syntax noprefix");
     println!(".globl main");
     println!("main:");
-    println!("  mov rax, {}", split_string_vec[0]);
+    println!("  mov rax, {}", expect_number(&mut token)); //はじめは数字、それ以外の場合はエラー
 
-    for i in 0..num_symbol {
-        let symbol = split_string_vec[1 + 2*i]; //演算子
-        let num = split_string_vec[2*(i+1)]; //数字
-
-        if symbol == "+" {
-            println!("  add rax, {}", num);
-        }else if symbol == "-" {
-            println!("  sub rax, {}", num);
-        }else{
-            eprintln!("予期しない文字です: {}", symbol); //標準エラー出力
-             std::process::exit(1); 
+    //tokenを保管しているキューが空になるまで
+    while !token.is_empty() {
+        if consume(&mut token, TokenKind::ADD) {
+            println!("  add rax, {}", expect_number(&mut token));
+            continue;
         }
+
+        if consume(&mut token, TokenKind::SUB) {
+            println!("  sub rax, {}", expect_number(&mut token));
+            continue;
+        }
+
+        expect(&mut token, TokenKind::TKEOF);
     }
 
     println!("  ret");
