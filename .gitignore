@@ -1,4 +1,5 @@
 *~
 *.o
 tmp*
+sample*
 target/
