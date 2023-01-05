@@ -1,16 +1,147 @@
 use std::env;
 use std::collections::VecDeque;
 
+
 #[derive(Debug, PartialEq)]
-enum TokenKind {
+pub enum NodeKind {
+    ND_ADD, // +
+    ND_SUB, // -
+    ND_MUL, // *
+    ND_DIV, // /
+    ND_NUM, //整数
+}
+
+//構文木を定義する列挙体
+#[derive(Debug)]
+pub enum Node {
+    Nil,
+    Elm {
+        kind: NodeKind,
+        lhs: Box<Node>, //Nodeのポインタを渡す
+        rhs: Box<Node>, //Nodeのポインタを渡す
+        val: Option<i32>,
+    }
+}
+
+//構文木の先頭を表す
+#[derive(Debug)]
+pub enum Root {
+    Empty,
+    More(Box<Node>),
+}
+
+impl Root {
+    pub fn new(node: Box<Node>) -> Root { //コンストラクタ
+        Root::More(node)
+    }
+}
+
+impl Node {
+    //数値を持たないノードの追加
+    pub fn new_node(kind: NodeKind, lhs: Box<Node>, rhs: Box<Node>) ->Box<Node> {
+        Box::new(Node::Elm { kind: kind, lhs: lhs, rhs: rhs, val: None })
+    }
+
+    //数値をもつノードの追加
+    pub fn new_node_num(val: i32) -> Box<Node> {
+        Box::new(Node::Elm { kind: NodeKind::ND_NUM, lhs: Box::new(Node::Nil), rhs: Box::new(Node::Nil), val: Some(val) })
+    }
+
+    pub fn expr(token: &mut VecDeque<Token>) -> Box<Node> {
+        let mut node = Node::mul(token); //selfで書ける気がしたけどダメでした
+        
+        loop {
+            if consume(token, TokenKind::ADD) { //ADDトークンの時
+                node = Node::new_node(NodeKind::ND_ADD, node, Node::mul(token));
+            }else if consume(token, TokenKind::SUB) { //SUBトークンの時 
+                node = Node::new_node(NodeKind::ND_SUB, node, Node::mul(token));
+            }else {
+                return node;
+            }
+        }
+    }
+
+    pub fn mul(token: &mut VecDeque<Token>) -> Box<Node> {
+        let mut node = Node::primary(token);
+
+        loop {
+            if consume(token, TokenKind::MUL) {
+                node = Node::new_node(NodeKind::ND_MUL, node, Node::primary(token));
+            }else if consume(token, TokenKind::DIV) {
+                node = Node::new_node(NodeKind::ND_DIV, node, Node::primary(token));
+            }else{
+                return node;
+            }
+        }
+    }
+
+    pub fn primary(token: &mut VecDeque<Token>) -> Box<Node> {
+        if consume(token, TokenKind::LPAR) {
+            let node = Node::expr(token);
+            expect(token, TokenKind::RPAR);
+            return node;
+        }else {
+            return Node::new_node_num(expect_number(token));
+        }
+    }
+}
+
+pub fn gen(node: Box<Node>) {
+    match *node {
+        Node::Nil => { //これが検出されたらただのバグ
+            eprintln!("Nil pointerです");
+            std::process::exit(1);
+        }
+        Node::Elm { kind, lhs, rhs, val } => {
+            if kind == NodeKind::ND_NUM { //トークンが数字の時
+                match val{
+                    Some(x) => {
+                        println!("  push {}", x);
+                        return;
+                    }
+                    None => {
+                        eprintln!("valがNoneになってます");
+                        std::process::exit(1);
+                    }
+                }
+            }
+
+            gen(lhs);
+            gen(rhs);
+
+            println!("  pop rdi");
+            println!("  pop rax");
+
+            match kind {
+                NodeKind::ND_ADD => println!("  add rax, rdi"),
+                NodeKind::ND_SUB => println!("  sub rax, rdi"),
+                NodeKind::ND_MUL => println!("  imul rax, rdi"),
+                NodeKind::ND_DIV => {
+                    println!("  cqo");
+                    println!("  idiv rdi");
+                }
+                _ => (), //それ以外のケースでは何もしない
+            }
+
+            println!("  push rax");
+        }
+    }
+} 
+
+#[derive(Debug, PartialEq)]
+pub enum TokenKind {
     ADD,    //足し算の記号
     SUB,    //引き算の記号
+    MUL,    //掛け算の記号
+    DIV,    //割り算の記号
     TKNUM,  // 整数トークン
+    LPAR,   //開きかっこ(
+    RPAR,   //閉じかっこ)
     TKEOF,  // 入力の終わりを表すトークン
 }
 
 #[derive(Debug)]
-struct Token {
+pub struct Token {
     kind: TokenKind,
     val: Option<i32>,
 }
@@ -123,10 +254,22 @@ fn tokenize(s: &mut String) -> VecDeque<Token> { //文字列の所有権はこ�
         }else if c == '+' { //足し算の時
             v.push_back(Token::new(TokenKind::ADD, None));
             s.remove(0);
-        }else if c == '-' {
+        }else if c == '-' { //引き算の時
             v.push_back(Token::new(TokenKind::SUB, None));
             s.remove(0);
-        }else if c.is_numeric() {
+        }else if c == '*' {
+            v.push_back(Token::new(TokenKind::MUL, None));
+            s.remove(0);
+        }else if c == '/' {
+            v.push_back(Token::new(TokenKind::DIV, None));
+            s.remove(0);
+        }else if c == '(' {
+            v.push_back(Token::new(TokenKind::LPAR, None));
+            s.remove(0);
+        }else if c == ')' {
+            v.push_back(Token::new(TokenKind::RPAR, None));
+            s.remove(0);
+        }else if c.is_numeric() { //数字の時
             v.push_back(Token::new(TokenKind::TKNUM, get_digit(s))); //get_digitで削除までしてくれる
         }else {
             eprintln!("トークナイズできません");
@@ -146,25 +289,16 @@ fn main() {
     }
 
     let mut token = tokenize(&mut argv[1]); //コマンドラインで受け取った文字列をトークン列に変換する
+    let node = Node::expr(&mut token);
+
+    // println!("{:?}", node);
+
     println!(".intel_syntax noprefix");
     println!(".globl main");
     println!("main:");
-    println!("  mov rax, {}", expect_number(&mut token)); //はじめは数字、それ以外の場合はエラー
+    // println!("  mov rax, {}", expect_number(&mut token)); //はじめは数字、それ以外の場合はエラー
 
-    //tokenを保管しているキューが空になるまで
-    while !token.is_empty() {
-        if consume(&mut token, TokenKind::ADD) {
-            println!("  add rax, {}", expect_number(&mut token));
-            continue;
-        }
-
-        if consume(&mut token, TokenKind::SUB) {
-            println!("  sub rax, {}", expect_number(&mut token));
-            continue;
-        }
-
-        expect(&mut token, TokenKind::TKEOF);
-    }
-
+    gen(node);
+    println!("  pop rax");
     println!("  ret");
 }
