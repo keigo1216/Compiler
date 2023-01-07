@@ -75,3 +75,68 @@ pub fn get_digit(s: &mut String) -> Option<i32> {
     let num: i32 = d.parse().unwrap();
     Some(num)
 }
+
+//代入文かboolen文なのかを判断する
+//適切なTokenKindを返す
+//いらなくなった文字はこちらで削除する
+pub fn judge_equal_symbol_token(s: &mut String) -> TokenKind {
+    
+    let c = s.chars().nth(0).unwrap();
+
+    match c {
+        '=' => {//==だった場合
+            s.remove(0);
+            return TokenKind::EQ;
+        }
+        _ => {//=だった場合
+            return TokenKind::ASS;
+        }
+    }
+}
+
+//ビックリマークが入ってきた時に、その後に=が続いているのか
+//続いていたらノットイコール
+//続いていなかったら対応するトークンがないのでエラー
+pub fn judge_no_equal_symbol_token(s: &mut String) -> TokenKind {
+
+    let c = s.chars().nth(0).unwrap();
+
+    if c == '=' { //ノットイコールの場合
+        s.remove(0);
+        return TokenKind::NEQ;
+    }else{
+        eprintln!("マッチするトークンがありません");
+        std::process::exit(1);
+    }
+
+}
+
+//<記号が入ってきた時に'<'または'<='を判断する
+//小なり
+pub fn judge_less_symbol_token(s: &mut String) -> TokenKind {
+
+    let c = s.chars().nth(0).unwrap();
+
+    if c == '=' { //<=の場合
+        s.remove(0);
+        return TokenKind::LE;
+    }else{ //<の場合
+        return TokenKind::LT;
+    }
+}
+
+
+//>記号が入ってきた時に'>'または'>='を判断する
+//大なり
+pub fn judge_greater_symbol_token(s: &mut String) -> TokenKind {
+
+    let c = s.chars().nth(0).unwrap();
+
+    if c == '=' {
+        s.remove(0);
+        return TokenKind::GE;
+    }else{
+        return TokenKind::GT;
+    }
+
+}

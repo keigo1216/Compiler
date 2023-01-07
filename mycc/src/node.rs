@@ -4,6 +4,7 @@ pub mod stack_assembly;
 // use std::collections::VecDeque;
 // use crate::token::{Token, TokenKind};
 
+//()は演算ではないから構文木の種類には入らない
 #[derive(Debug, PartialEq)]
 //列挙体はpubにすればメンバも自動的にpubになる
 pub enum NodeKind {
@@ -11,6 +12,12 @@ pub enum NodeKind {
     NDSUB, // -
     NDMUL, // *
     NDDIV, // /
+    NDEQ,  //=
+    NDNEQ, //ノットイコール
+    NDLT,  //<
+    NDLE,  //<=
+    NDGT,  //>
+    NDGE,  //>=
     NDNUM, //整数
 }
 
