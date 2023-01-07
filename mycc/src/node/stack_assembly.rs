@@ -1,6 +1,7 @@
 use crate::node::{Node, NodeKind};
 
 //構文木からアセンブリ言語を生成する
+//もう少し綺麗に書く方法ありそうだけど...
 pub fn gen(node: Box<Node>) {
     match *node {
         Node::Nil => { //これが検出されたらただのバグ
@@ -9,15 +10,12 @@ pub fn gen(node: Box<Node>) {
         }
         Node::Elm { kind, lhs, rhs, val } => {
             if kind == NodeKind::NDNUM { //トークンが数字の時
-                match val{
-                    Some(x) => {
-                        println!("  push {}", x);
-                        return;
-                    }
-                    None => {
-                        eprintln!("valがNoneになってます");
-                        std::process::exit(1);
-                    }
+                if let Some(x) = val { //Noneチェック
+                    println!("  push {}", x);
+                    return;
+                }else{
+                    eprintln!("valがNoneになってます");
+                    std::process::exit(1);
                 }
             }
 
