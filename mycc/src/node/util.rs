@@ -18,16 +18,26 @@ pub fn expr(token: &mut VecDeque<Token>) -> Box<Node> {
 }
 
 pub fn mul(token: &mut VecDeque<Token>) -> Box<Node> {
-    let mut node = primary(token);
+    let mut node = unary(token);
 
     loop {
         if util::consume(token, TokenKind::MUL) {
-            node = Node::new_node(NodeKind::NDMUL, node, primary(token));
+            node = Node::new_node(NodeKind::NDMUL, node, unary(token));
         }else if util::consume(token, TokenKind::DIV) {
-            node = Node::new_node(NodeKind::NDDIV, node, primary(token));
+            node = Node::new_node(NodeKind::NDDIV, node, unary(token));
         }else{
             return node;
         }
+    }
+}
+
+pub fn unary(token: &mut VecDeque<Token>) -> Box<Node> {
+    if util::consume(token, TokenKind::ADD) {
+        primary(token)
+    }else if util::consume(token, TokenKind::SUB) {
+        Node::new_node(NodeKind::NDSUB, Node::new_node_num(0), primary(token))
+    }else{
+        primary(token)
     }
 }
 
