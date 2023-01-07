@@ -26,6 +26,38 @@ pub fn gen(node: Box<Node>) {
             println!("  pop rax");
 
             match kind {
+                NodeKind::NDEQ => {
+                    println!("  cmp rax, rdi");
+                    println!("  sete al");
+                    println!("  movzb rax, al");
+                },
+                NodeKind::NDNEQ => {
+                    println!("  cmp rax, rdi");
+                    println!("  setne al");
+                    println!("  movzb rax, al");
+                }
+                NodeKind::NDLT => {
+                    println!("  cmp rax, rdi");
+                    println!("  setl al");
+                    println!("  movzb rax, al");
+                },
+                NodeKind::NDLE => {
+                    println!("  cmp rax, rdi");
+                    println!("  setle al");
+                    println!("  movzb rax, al");
+                },
+                NodeKind::NDGT => {
+                    println!("  xchg rdi, rax");
+                    println!("  cmp rax, rdi");
+                    println!("  setl al");
+                    println!("  movzb rax, al");
+                },
+                NodeKind::NDGE => {
+                    println!("  xchg rdi, rax");
+                    println!("  cmp rax, rdi");
+                    println!("  setle al");
+                    println!("  movzb rax, al");
+                },
                 NodeKind::NDADD => println!("  add rax, rdi"),
                 NodeKind::NDSUB => println!("  sub rax, rdi"),
                 NodeKind::NDMUL => println!("  imul rax, rdi"),

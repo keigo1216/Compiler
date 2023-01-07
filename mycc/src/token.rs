@@ -8,6 +8,13 @@ pub enum TokenKind {
     SUB,    //引き算の記号
     MUL,    //掛け算の記号
     DIV,    //割り算の記号
+    ASS,    //代入
+    EQ,     //==
+    NEQ,    //ノットイコール
+    LT,    //<
+    LE,    //<=
+    GT,    //>
+    GE,    //>=
     TKNUM,  // 整数トークン
     LPAR,   //開きかっこ(
     RPAR,   //閉じかっこ)

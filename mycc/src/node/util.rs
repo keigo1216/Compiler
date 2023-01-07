@@ -4,14 +4,61 @@ use crate::node::{Node, NodeKind};
 
 
 pub fn expr(token: &mut VecDeque<Token>) -> Box<Node> {
-    let mut node = mul(token); //selfで書ける気がしたけどダメでした
+    // let mut node = mul(token); //selfで書ける気がしたけどダメでした
     
+    // loop {
+    //     if util::consume(token, TokenKind::ADD) { //ADDトークンの時
+    //         node = Node::new_node(NodeKind::NDADD, node, mul(token));
+    //     }else if util::consume(token, TokenKind::SUB) { //SUBトークンの時 
+    //         node = Node::new_node(NodeKind::NDSUB, node, mul(token));
+    //     }else {
+    //         return node;
+    //     }
+    // }
+    equality(token)
+}
+
+pub fn equality(token: &mut VecDeque<Token>) -> Box<Node> {
+    let mut node = relational(token);
+
     loop {
-        if util::consume(token, TokenKind::ADD) { //ADDトークンの時
+        if util::consume(token, TokenKind::EQ) { //==
+            node = Node::new_node(NodeKind::NDEQ, node, relational(token));
+        }else if util::consume(token, TokenKind::NEQ) { //ノットイコール
+            node = Node::new_node(NodeKind::NDNEQ, node, relational(token));
+        }else{
+            return node;
+        }
+    }
+}
+
+pub fn relational(token: &mut VecDeque<Token>) -> Box<Node> {
+    let mut node = add(token);
+
+    loop {
+        if util::consume(token, TokenKind::LT) {
+            node = Node::new_node(NodeKind::NDLT, node, add(token));
+        }else if util::consume(token, TokenKind::LE) {
+            node = Node::new_node(NodeKind::NDLE, node, add(token));
+        }else if util::consume(token, TokenKind::GT) {
+            node = Node::new_node(NodeKind::NDGT, node, add(token));
+        }else if util::consume(token, TokenKind::GE) {
+            node = Node::new_node(NodeKind::NDGE, node, add(token));
+        }else{
+            return node;
+        }
+    }
+}
+
+pub fn add (token: &mut VecDeque<Token>) -> Box<Node> {
+    let mut node = mul(token);
+
+    loop {
+        if util::consume(token, TokenKind::ADD) {
             node = Node::new_node(NodeKind::NDADD, node, mul(token));
-        }else if util::consume(token, TokenKind::SUB) { //SUBトークンの時 
+        }else if util::consume(token, TokenKind::SUB) {
             node = Node::new_node(NodeKind::NDSUB, node, mul(token));
-        }else {
+        }else{
             return node;
         }
     }
