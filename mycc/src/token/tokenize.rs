@@ -14,48 +14,56 @@ pub fn tokenize(s: &mut String) -> VecDeque<Token> { //有限状態オートマ�
             ' ' => {
                 s.remove(0);
             }
-            '+' => {
-                v.push_back(Token::new(TokenKind::ADD, None));
+            x if x.is_alphabetic() => { //cがアルファベットの時
                 s.remove(0);
+                v.push_back(Token::new(TokenKind::ID, Some(c.to_string()), None));
+            }
+            '+' => {
+                s.remove(0);
+                v.push_back(Token::new(TokenKind::ADD, None,None));
             }
             '-' => {
-                v.push_back(Token::new(TokenKind::SUB, None));
                 s.remove(0);
+                v.push_back(Token::new(TokenKind::SUB, None, None));
             }
             '*' => {
-                v.push_back(Token::new(TokenKind::MUL, None));
                 s.remove(0);
+                v.push_back(Token::new(TokenKind::MUL, None, None));
             }
             '/' => {
-                v.push_back(Token::new(TokenKind::DIV, None));
                 s.remove(0);
+                v.push_back(Token::new(TokenKind::DIV, None, None));
             }
             '=' => {//代入文かboolen文なのかを判断する
                 s.remove(0);
-                v.push_back(Token::new(util::judge_equal_symbol_token(s), None));
+                v.push_back(Token::new(util::judge_equal_symbol_token(s), None, None));
             }
             '!' => {//ノットイコールになっているのかを判断する
                 s.remove(0);
-                v.push_back(Token::new(util::judge_no_equal_symbol_token(s), None));
+                v.push_back(Token::new(util::judge_no_equal_symbol_token(s), None, None));
             }
             '<' => {//<なのか<=なのかを判断する, 最長一致が基本
                 s.remove(0);
-                v.push_back(Token::new(util::judge_less_symbol_token(s), None));
+                v.push_back(Token::new(util::judge_less_symbol_token(s), None, None));
             }
             '>' => {//>なのか>=なのかを判断する. 最長一致が基本
                 s.remove(0);
-                v.push_back(Token::new(util::judge_greater_symbol_token(s), None));
+                v.push_back(Token::new(util::judge_greater_symbol_token(s), None, None));
             }
             '(' => {
-                v.push_back(Token::new(TokenKind::LPAR, None));
                 s.remove(0);
+                v.push_back(Token::new(TokenKind::LPAR, None, None));
             }
             ')' => {
-                v.push_back(Token::new(TokenKind::RPAR, None));
                 s.remove(0);
+                v.push_back(Token::new(TokenKind::RPAR, None, None));
             }
             x if x.is_numeric() => {
-                v.push_back(Token::new(TokenKind::TKNUM, util::get_digit(s))); //get_digitで削除までしてくれる
+                v.push_back(Token::new(TokenKind::TKNUM, None,util::get_digit(s))); //get_digitで削除までしてくれる
+            }
+            ';' => {//セミコロンの時
+                s.remove(0);
+                v.push_back(Token::new(TokenKind::SEMI, None, None));
             }
             _ => {
                 eprintln!("トークナイズできません");
@@ -63,6 +71,6 @@ pub fn tokenize(s: &mut String) -> VecDeque<Token> { //有限状態オートマ�
         }
     }
 
-    v.push_back(Token::new(TokenKind::TKEOF, None));
+    v.push_back(Token::new(TokenKind::TKEOF, None,None));
     v
 }

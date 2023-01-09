@@ -4,11 +4,12 @@ pub mod util;
 
 #[derive(Debug, PartialEq)]
 pub enum TokenKind {
+    ID,     //今は一文字の変数を表す
     ADD,    //足し算の記号
     SUB,    //引き算の記号
     MUL,    //掛け算の記号
     DIV,    //割り算の記号
-    ASS,    //代入
+    ASS,    //=　代入
     EQ,     //==
     NEQ,    //ノットイコール
     LT,    //<
@@ -18,6 +19,7 @@ pub enum TokenKind {
     TKNUM,  // 整数トークン
     LPAR,   //開きかっこ(
     RPAR,   //閉じかっこ)
+    SEMI,   //セミコロン
     TKEOF,  // 入力の終わりを表すトークン
 }
 
@@ -25,14 +27,16 @@ pub enum TokenKind {
 #[derive(Debug)]
 pub struct Token {
     kind: TokenKind,
+    str: Option<String>,
     val: Option<i32>,
 }
 
 impl Token {
-    pub fn new(kind: TokenKind, val: Option<i32>) -> Token{
+    pub fn new(kind: TokenKind, str:Option<String>, val: Option<i32>) -> Token{
         Token {
             kind,
-            val, //はじめはNoneで初期化する
+            str, //IDの変数名を格納する
+            val, //NUMの数を入れる時に使用
         }
     }
 }

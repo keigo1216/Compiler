@@ -1,14 +1,35 @@
 use crate::node::{Node, NodeKind};
 
+pub fn gen_lval(kind: NodeKind, offset: Option<i32>) { //参照で渡さないと所有権がこっちにきてしまうみたい
+    // if kind != NodeKind::NDLVAR {
+    //     eprintln!("代入の左辺値が数字ではありません");
+    //     std::process::exit(1);
+    // }
+
+    if let NodeKind::NDLVAR = kind { //トークンがローカル変数の時
+        println!("  mov rax, rbp");
+        if let Some(x) = offset {
+            println!("  sub rax, {}", x);
+        }else{ 
+            eprintln!("数値が無効です");
+            std::process::exit(1);
+        }
+        println!("  push rax");
+    }else{ //トークンがローカル変数ではない時
+        eprintln!("代入の左辺値が数字ではありません");
+        std::process::exit(1);
+    }
+}
+
 //構文木からアセンブリ言語を生成する
 //もう少し綺麗に書く方法ありそうだけど...
 pub fn gen(node: Box<Node>) {
-    match *node {
+    match *node { //参照外し
         Node::Nil => { //これが検出されたらただのバグ
             eprintln!("Nil pointerです");
             std::process::exit(1);
         }
-        Node::Elm { kind, lhs, rhs, val } => {
+        Node::Elm { kind, lhs, rhs, val , offset} => { //所有権移っている？
             if kind == NodeKind::NDNUM { //トークンが数字の時
                 if let Some(x) = val { //Noneチェック
                     println!("  push {}", x);
@@ -17,6 +38,32 @@ pub fn gen(node: Box<Node>) {
                     eprintln!("valがNoneになってます");
                     std::process::exit(1);
                 }
+            }
+
+            if kind == NodeKind::NDLVAR {
+                gen_lval(kind, offset);
+                println!("  pop rax");
+                println!("  mov rax, [rax]");
+                println!("  push rax");
+                return;
+            }
+
+            if kind == NodeKind::NDASS {
+                match *lhs {
+                    Node::Nil => {
+                        eprintln!("代入の左辺値が変数ではありません");
+                    }
+                    Node::Elm { kind, lhs, rhs, val, offset } => {
+                        gen_lval(kind, offset);
+                    }
+                }
+                // gen_lval(kind, offset);
+                gen(rhs);
+                println!("  pop rdi");
+                println!("  pop rax");
+                println!("  mov [rax], rdi");
+                println!("  push rdi");
+                return;
             }
 
             gen(lhs);
