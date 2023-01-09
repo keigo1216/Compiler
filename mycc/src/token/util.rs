@@ -17,6 +17,52 @@ pub fn consume(token: &mut VecDeque<Token>, op: TokenKind) -> bool{
     }
 }
 
+//先頭のトークンがIDトークンかどうか
+//実際に取り出したりしない
+pub fn consume_ident(token: &mut VecDeque<Token>) -> bool {
+    let front_token = token.pop_front(); //先頭のトークンを取得
+
+    if let Some(t) = front_token { //トークンが有効な時
+        if t.kind == TokenKind::ID {
+            token.push_front(t);
+            true
+        }else{
+            token.push_front(t);
+            false
+        }
+    }else{ //トークンが無効な時
+        eprintln!("空です");
+        std::process::exit(1);
+    }
+}
+
+//この関数はだいぶ汚いので綺麗に書き直したい
+//トークンがIDならStringを返す
+//それ以外の時はエラーを返す
+//consume_identと一緒に使ってください
+//エラーが出るから変なバグには繋がらないと思います
+//半分ぐらいconsume_identと同じことしているのでまとめたいところ
+pub fn expect_id(token: &mut VecDeque<Token>) -> String {
+    let front_token = token.pop_front();
+
+    if let Some(t) = front_token {
+        if t.kind == TokenKind::ID {
+            if let Some(s) = t.str {
+                return s;
+            }else{
+                eprintln!("文字列が無効です");
+                std::process::exit(1);
+            }
+        }else{
+            eprintln!("トークンがIDではありません");
+            std::process::exit(1);
+        }
+    }else{
+        eprintln!("トークンが無効です");
+        std::process::exit(1);
+    }
+}
+
 //VecDequeの先頭要素が数字の時その先頭要素を返し、それ以外の時エラー出力する
 pub fn expect_number(token: &mut VecDeque<Token>) -> i32{
     let front_token = token.pop_front();
@@ -74,6 +120,22 @@ pub fn get_digit(s: &mut String) -> Option<i32> {
     }
     let num: i32 = d.parse().unwrap();
     Some(num)
+}
+
+pub fn at_eof(token: &mut VecDeque<Token>) -> bool {
+    let front_token = token.pop_front();
+
+    if let Some(t) = front_token {
+        if t.kind == TokenKind::TKEOF {
+            true
+        }else{
+            token.push_front(t);
+            false
+        }
+    }else{
+        eprintln!("有効でないトークンです");
+        std::process::exit(1);
+    }
 }
 
 //代入文かboolen文なのかを判断する

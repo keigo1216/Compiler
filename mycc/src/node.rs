@@ -12,12 +12,14 @@ pub enum NodeKind {
     NDSUB, // -
     NDMUL, // *
     NDDIV, // /
-    NDEQ,  //=
+    NDASS, //= 代入文
+    NDEQ,  //==
     NDNEQ, //ノットイコール
     NDLT,  //<
     NDLE,  //<=
     NDGT,  //>
     NDGE,  //>=
+    NDLVAR, //ローカル変数
     NDNUM, //整数
 }
 
@@ -29,18 +31,24 @@ pub enum Node {
         kind: NodeKind,
         lhs: Box<Node>, //Nodeのポインタを渡す
         rhs: Box<Node>, //Nodeのポインタを渡す
-        val: Option<i32>,
+        val: Option<i32>, //NDNUMの値
+        offset: Option<i32>, //NDLVARのときのベースアドレスからのオフセット
     }
 }
 
 impl Node {
     //数値を持たないノードの追加
     pub fn new_node(kind: NodeKind, lhs: Box<Node>, rhs: Box<Node>) ->Box<Node> {
-        Box::new(Node::Elm { kind: kind, lhs: lhs, rhs: rhs, val: None })
+        Box::new(Node::Elm { kind: kind, lhs: lhs, rhs: rhs, val: None, offset: None})
     }
 
     //数値をもつノードの追加
     pub fn new_node_num(val: i32) -> Box<Node> {
-        Box::new(Node::Elm { kind: NodeKind::NDNUM, lhs: Box::new(Node::Nil), rhs: Box::new(Node::Nil), val: Some(val) })
+        Box::new(Node::Elm { kind: NodeKind::NDNUM, lhs: Box::new(Node::Nil), rhs: Box::new(Node::Nil), val: Some(val), offset: None})
+    }
+
+    //変数を持つノードの追加
+    pub fn new_node_var(offset: i32) -> Box<Node> {
+        Box::new(Node::Elm { kind: NodeKind::NDLVAR, lhs: Box::new(Node::Nil), rhs: Box::new(Node::Nil), val: None, offset: Some(offset)})
     }
 }
