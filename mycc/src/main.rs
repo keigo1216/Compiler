@@ -28,6 +28,7 @@ fn main() {
     println!("  mov rbp, rsp");
     println!("  sub rsp, 208");
 
+    //ここは後で変更される気がする（たぶん）
     while !node.is_empty() {
         let elem_node = node.pop_front();
         if let Some(n) = elem_node {
