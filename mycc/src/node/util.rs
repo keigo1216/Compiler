@@ -138,9 +138,6 @@ pub fn unary(token: &mut VecDeque<Token>) -> Box<Node> {
 }
 
 
-//##################
-//ここは後で変更する
-//##################
 //数字、識別子（変数名）、カッコを生成する
 //生成規則
 //primary = num | ident | "(" expr ")"
@@ -149,7 +146,7 @@ pub fn primary(token: &mut VecDeque<Token>) -> Box<Node> {
         let node = expr(token);
         util::expect(token, TokenKind::RPAR);
         return node;
-    }else if util::consume_ident(token) { //IDの時, ここ汚すぎですね
+    }else if util::consume_ident(token) { //IDの時, ここ汚すぎですね、後で変更するはず
         let s = util::expect_id(token);
         let c = s.chars().nth(0).unwrap();
         let x = c as i32;

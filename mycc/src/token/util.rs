@@ -36,6 +36,7 @@ pub fn consume_ident(token: &mut VecDeque<Token>) -> bool {
     }
 }
 
+//primary関数で使う
 //この関数はだいぶ汚いので綺麗に書き直したい
 //トークンがIDならStringを返す
 //それ以外の時はエラーを返す
@@ -145,14 +146,11 @@ pub fn judge_equal_symbol_token(s: &mut String) -> TokenKind {
     
     let c = s.chars().nth(0).unwrap();
 
-    match c {
-        '=' => {//==だった場合
-            s.remove(0);
-            return TokenKind::EQ;
-        }
-        _ => {//=だった場合
-            return TokenKind::ASS;
-        }
+    if c == '=' {
+        s.remove(0);
+        return TokenKind::EQ;
+    }else {
+        return TokenKind::ASS;
     }
 }
 

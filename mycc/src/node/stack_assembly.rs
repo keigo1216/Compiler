@@ -30,92 +30,88 @@ pub fn gen(node: Box<Node>) {
             std::process::exit(1);
         }
         Node::Elm { kind, lhs, rhs, val , offset} => { //所有権移っている？
-            if kind == NodeKind::NDNUM { //トークンが数字の時
-                if let Some(x) = val { //Noneチェック
+            match (kind, lhs, rhs, val, offset) {
+                (NodeKind::NDNUM, _, _, Some(x), _) => {
                     println!("  push {}", x);
-                    return;
-                }else{
-                    eprintln!("valがNoneになってます");
-                    std::process::exit(1);
+                    // return;
                 }
-            }
-
-            if kind == NodeKind::NDLVAR {
-                gen_lval(kind, offset);
-                println!("  pop rax");
-                println!("  mov rax, [rax]");
-                println!("  push rax");
-                return;
-            }
-
-            if kind == NodeKind::NDASS {
-                match *lhs {
-                    Node::Nil => {
-                        eprintln!("代入の左辺値が変数ではありません");
+                (NodeKind::NDLVAR, .., Some(offs)) => {
+                    println!("  mov rax, rbp");
+                    println!("  sub rax, {}", offs);
+                    println!("  push rax");
+                    // gen_lval(kind, offset);
+                    println!("  pop rax");
+                    println!("  mov rax, [rax]");
+                    println!("  push rax");
+                    // return;
+                }
+                (NodeKind::NDASS, l, r, ..) => { //lの中身まで指定したかったけどできないみたい, ここもっと綺麗に書けそう
+                    if let Node::Elm{ kind: NodeKind::NDLVAR, offset: Some(x), ..} = *l {
+                        println!("  mov rax, rbp");
+                        println!("  sub rax, {}", x);
+                        println!("  push rax");
+                    }else{
+                        eprintln!("不正なトークンです. 構文解析できません.");
+                        std::process::exit(1);
                     }
-                    Node::Elm { kind, lhs, rhs, val, offset } => {
-                        gen_lval(kind, offset);
+                    gen(r);
+                    println!("  pop rdi");
+                    println!("  pop rax");
+                    println!("  mov [rax], rdi");
+                    println!("  push rdi");
+                    // return;
+                }
+                (kind, lhs, rhs, ..) => {
+                    gen(lhs);
+                    gen(rhs);
+                    println!("  pop rdi");
+                    println!("  pop rax");
+
+                    match kind {
+                        NodeKind::NDEQ => {
+                            println!("  cmp rax, rdi");
+                            println!("  sete al");
+                            println!("  movzb rax, al");
+                        },
+                        NodeKind::NDNEQ => {
+                            println!("  cmp rax, rdi");
+                            println!("  setne al");
+                            println!("  movzb rax, al");
+                        }
+                        NodeKind::NDLT => {
+                            println!("  cmp rax, rdi");
+                            println!("  setl al");
+                            println!("  movzb rax, al");
+                        },
+                        NodeKind::NDLE => {
+                            println!("  cmp rax, rdi");
+                            println!("  setle al");
+                            println!("  movzb rax, al");
+                        },
+                        NodeKind::NDGT => {
+                            println!("  xchg rdi, rax");
+                            println!("  cmp rax, rdi");
+                            println!("  setl al");
+                            println!("  movzb rax, al");
+                        },
+                        NodeKind::NDGE => {
+                            println!("  xchg rdi, rax");
+                            println!("  cmp rax, rdi");
+                            println!("  setle al");
+                            println!("  movzb rax, al");
+                        },
+                        NodeKind::NDADD => println!("  add rax, rdi"),
+                        NodeKind::NDSUB => println!("  sub rax, rdi"),
+                        NodeKind::NDMUL => println!("  imul rax, rdi"),
+                        NodeKind::NDDIV => {
+                            println!("  cqo");
+                            println!("  idiv rdi");
+                        }
+                        _ => (), //それ以外のケースでは何もしない
                     }
+                    println!("  push rax");
                 }
-                // gen_lval(kind, offset);
-                gen(rhs);
-                println!("  pop rdi");
-                println!("  pop rax");
-                println!("  mov [rax], rdi");
-                println!("  push rdi");
-                return;
             }
-
-            gen(lhs);
-            gen(rhs);
-
-            println!("  pop rdi");
-            println!("  pop rax");
-
-            match kind {
-                NodeKind::NDEQ => {
-                    println!("  cmp rax, rdi");
-                    println!("  sete al");
-                    println!("  movzb rax, al");
-                },
-                NodeKind::NDNEQ => {
-                    println!("  cmp rax, rdi");
-                    println!("  setne al");
-                    println!("  movzb rax, al");
-                }
-                NodeKind::NDLT => {
-                    println!("  cmp rax, rdi");
-                    println!("  setl al");
-                    println!("  movzb rax, al");
-                },
-                NodeKind::NDLE => {
-                    println!("  cmp rax, rdi");
-                    println!("  setle al");
-                    println!("  movzb rax, al");
-                },
-                NodeKind::NDGT => {
-                    println!("  xchg rdi, rax");
-                    println!("  cmp rax, rdi");
-                    println!("  setl al");
-                    println!("  movzb rax, al");
-                },
-                NodeKind::NDGE => {
-                    println!("  xchg rdi, rax");
-                    println!("  cmp rax, rdi");
-                    println!("  setle al");
-                    println!("  movzb rax, al");
-                },
-                NodeKind::NDADD => println!("  add rax, rdi"),
-                NodeKind::NDSUB => println!("  sub rax, rdi"),
-                NodeKind::NDMUL => println!("  imul rax, rdi"),
-                NodeKind::NDDIV => {
-                    println!("  cqo");
-                    println!("  idiv rdi");
-                }
-                _ => (), //それ以外のケースでは何もしない
-            }
-
-            println!("  push rax");
         }
     }
 } 
