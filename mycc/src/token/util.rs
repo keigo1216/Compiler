@@ -22,17 +22,19 @@ pub fn consume(token: &mut VecDeque<Token>, op: TokenKind) -> bool{
 pub fn consume_ident(token: &mut VecDeque<Token>) -> bool {
     let front_token = token.pop_front(); //先頭のトークンを取得
 
-    if let Some(t) = front_token { //トークンが有効な時
-        if t.kind == TokenKind::ID {
+    match front_token {
+        Some(t @ Token { kind:TokenKind::ID, ..}) => {
             token.push_front(t);
-            true
-        }else{
-            token.push_front(t);
-            false
+            return true;
         }
-    }else{ //トークンが無効な時
-        eprintln!("空です");
-        std::process::exit(1);
+        Some(t) => {
+            token.push_front(t);
+            return false;
+        }
+        None => {
+            eprintln!("空です");
+            std::process::exit(1);
+        }
     }
 }
 
@@ -46,21 +48,22 @@ pub fn consume_ident(token: &mut VecDeque<Token>) -> bool {
 pub fn expect_id(token: &mut VecDeque<Token>) -> String {
     let front_token = token.pop_front();
 
-    if let Some(t) = front_token {
-        if t.kind == TokenKind::ID {
-            if let Some(s) = t.str {
-                return s;
-            }else{
-                eprintln!("文字列が無効です");
-                std::process::exit(1);
-            }
-        }else{
-            eprintln!("トークンがIDではありません");
+    match front_token {
+        Some(Token { kind:TokenKind::ID, str:Some(s), ..}) => { //正常なとき
+            return s;
+        }
+        Some(Token { kind: TokenKind::ID, str:None, ..}) => { //ノードのトークンはIDだが文字列が入っていないとき
+            eprintln!("ノードにIDの文字列がありません");
             std::process::exit(1);
         }
-    }else{
-        eprintln!("トークンが無効です");
-        std::process::exit(1);
+        Some(_) => { //ID以外のノードを持つのが入ってきたとき
+            eprintln!("ノードがIDではありません");
+            std::process::exit(1);
+        }
+        None => { //ノードがNoneのとき
+            eprintln!("ノードが存在しません");
+            std::process::exit(1);
+        }
     }
 }
 
@@ -69,22 +72,23 @@ pub fn expect_number(token: &mut VecDeque<Token>) -> i32{
     let front_token = token.pop_front();
     
     //ネストが深くて読みいにくいからなんとかしたいけど...
-    if let Some(t) = front_token {
-        if let TokenKind::TKNUM = t.kind {
-            if let Some(x) = t.val {x}
-            else {
-                eprintln!("数字が有効ではありません");
-                std::process::exit(1);
-            }
-        }else{
+    match front_token {
+        Some(Token { kind: TokenKind::TKNUM, val: Some(_val), ..}) => {
+            return _val;
+        }
+        Some(Token{ kind: TokenKind::TKNUM, val: None, ..}) => {
+            eprintln!("数字が有効ではありません");
+            std::process::exit(1);
+        }
+        Some(_) => {
             eprintln!("先頭が数字ではありません");
             std::process::exit(1);
         }
-    }else{
-        eprintln!("先頭が数字ではありません");
-        std::process::exit(1);
+        None => {
+            eprintln!("ノードが存在しません");
+            std::process::exit(1);
+        }
     }
-
 }
 
 //VecDequeの先頭要素のKindがopと一致していなかったらエラー出力する
@@ -126,16 +130,18 @@ pub fn get_digit(s: &mut String) -> Option<i32> {
 pub fn at_eof(token: &mut VecDeque<Token>) -> bool {
     let front_token = token.pop_front();
 
-    if let Some(t) = front_token {
-        if t.kind == TokenKind::TKEOF {
-            true
-        }else{
-            token.push_front(t);
-            false
+    match front_token {
+        Some(Token{ kind:TokenKind::TKEOF, ..}) => {
+            return true;
         }
-    }else{
-        eprintln!("有効でないトークンです");
-        std::process::exit(1);
+        Some(t) => {
+            token.push_front(t);
+            return false;
+        }
+        None => {
+            eprintln!("トークンが存在しません");
+            std::process::exit(1);
+        }
     }
 }
 
