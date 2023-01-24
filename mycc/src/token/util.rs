@@ -127,6 +127,33 @@ pub fn get_digit(s: &mut String) -> Option<i32> {
     Some(num)
 }
 
+//sの先頭の文字列を取得する
+//文字列の長さが1とは限らないことに注意
+pub fn get_id_name(s: &mut String) -> Option<String> {
+
+    let mut d = String::new();
+
+    //先頭はアルファベットかアンダースコア
+    let c = s.chars().nth(0).unwrap();
+    if c.is_alphabetic() || c == '_' {
+        d.push(c);
+        s.remove(0);
+    }
+
+    while s.len() > 0 {
+        let c = s.chars().nth(0).unwrap();
+
+        if c.is_alphanumeric() || c == '_' {
+            d.push(c);
+            s.remove(0);
+        } else {
+            break;
+        }
+    }
+    
+    Some(d)
+}
+
 pub fn at_eof(token: &mut VecDeque<Token>) -> bool {
     let front_token = token.pop_front();
 
