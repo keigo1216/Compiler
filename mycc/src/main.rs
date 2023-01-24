@@ -18,6 +18,8 @@ fn main() {
     let mut node = node::util::program(&mut token);
     // println!("{:?}", node);
 
+    
+
     println!(".intel_syntax noprefix");
     println!(".globl main");
     println!("main:");

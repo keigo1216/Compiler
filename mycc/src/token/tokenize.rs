@@ -15,8 +15,8 @@ pub fn tokenize(s: &mut String) -> VecDeque<Token> { //有限状態オートマ�
                 s.remove(0);
             }
             x if x.is_alphabetic() => { //cがアルファベットの時
-                s.remove(0);
-                v.push_back(Token::new(TokenKind::ID, Some(c.to_string()), None));
+                // s.remove(0);
+                v.push_back(Token::new(TokenKind::ID, util::get_id_name(s), None)); //get_id_nameでremoveまでしてくれる
             }
             '+' => {
                 s.remove(0);
