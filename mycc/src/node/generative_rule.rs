@@ -8,6 +8,7 @@ pub struct LVar {
 }
 
 //非終端記号
+//生成規則を書いてます
 
 //一つのプログラムの塊は複数のステートメントで成り立っている
 //生成規則
@@ -154,9 +155,8 @@ pub fn primary(token: &mut VecDeque<Token>, vec_lvar: &mut Vec<LVar>) -> Box<Nod
         return node;
     }else if util::consume_ident(token) { //IDの時, ここ汚すぎですね、後で変更するはず
         //新しい変数かどうかをチェック
-        let s = util::expect_id(token);
-
-        let result_find = (&vec_lvar).iter().find(|v| &v.name == &s);
+        let s = util::expect_id(token); //トークンの文字列を取得
+        let result_find = (&vec_lvar).iter().find(|v| &v.name == &s); //vec_lvarにあるかどうか
 
         match result_find {
             Some(lvar) => { //変数が存在した場合
@@ -167,30 +167,13 @@ pub fn primary(token: &mut VecDeque<Token>, vec_lvar: &mut Vec<LVar>) -> Box<Nod
 
                 let lvar_to_push = LVar {
                     name: s.clone(),
-                    offset: num_lvar, //とりあえずキャストしておく。後でusizeに全体を変更したいかも
+                    offset: num_lvar,
                 };
                 vec_lvar.push(lvar_to_push); //変数を追加
 
                 return Node::new_node_var(num_lvar);
             }
         }
-
-        // let a = (&vec_lvar).iter().find(|v| &v.name == &s);
-
-        // //offsetの取得
-        // if (&vec_lvar).iter().any(|v| &v.name == &s) { //offsetの取得
-
-        // }else{ //新しい文字の時
-
-        //     //要素の数からやればできそう
-
-        // }
-
-        // // let s = util::expect_id(token);
-        // let c = s.chars().nth(0).unwrap();
-        // let x = c as i32;
-        // let y = 'a' as i32;
-        // return Node::new_node_var((x - y + 1)*8); //多分ここは後々変えていくところ
     }   
     
     else {

@@ -12,7 +12,7 @@ pub fn consume(token: &mut VecDeque<Token>, op: TokenKind) -> bool{
             false
         }
     }else{ //front_tokenがNoneだったらエラー
-        eprintln!("空です");
+        eprintln!("expect have an element, but it's empty. ");
         std::process::exit(1);
     }
 }
@@ -32,7 +32,7 @@ pub fn consume_ident(token: &mut VecDeque<Token>) -> bool {
             return false;
         }
         None => {
-            eprintln!("空です");
+            eprintln!("expect have an element, but it's empty. ");
             std::process::exit(1);
         }
     }
@@ -46,6 +46,7 @@ pub fn consume_ident(token: &mut VecDeque<Token>) -> bool {
 //エラーが出るから変なバグには繋がらないと思います
 //半分ぐらいconsume_identと同じことしているのでまとめたいところ
 pub fn expect_id(token: &mut VecDeque<Token>) -> String {
+
     let front_token = token.pop_front();
 
     match front_token {
@@ -53,15 +54,15 @@ pub fn expect_id(token: &mut VecDeque<Token>) -> String {
             return s;
         }
         Some(Token { kind: TokenKind::ID, str:None, ..}) => { //ノードのトークンはIDだが文字列が入っていないとき
-            eprintln!("ノードにIDの文字列がありません");
+            eprintln!("Node token is ID, but don't have an ID String. ");
             std::process::exit(1);
         }
         Some(_) => { //ID以外のノードを持つのが入ってきたとき
-            eprintln!("ノードがIDではありません");
+            eprintln!("expect have ID token, but don't have. ");
             std::process::exit(1);
         }
         None => { //ノードがNoneのとき
-            eprintln!("ノードが存在しません");
+            eprintln!("expect have an element, but it's empty. ");
             std::process::exit(1);
         }
     }
@@ -71,21 +72,20 @@ pub fn expect_id(token: &mut VecDeque<Token>) -> String {
 pub fn expect_number(token: &mut VecDeque<Token>) -> i32{
     let front_token = token.pop_front();
     
-    //ネストが深くて読みいにくいからなんとかしたいけど...
     match front_token {
-        Some(Token { kind: TokenKind::TKNUM, val: Some(_val), ..}) => {
+        Some(Token { kind: TokenKind::TKNUM, val: Some(_val), ..}) => { //正常なとき
             return _val;
         }
-        Some(Token{ kind: TokenKind::TKNUM, val: None, ..}) => {
-            eprintln!("数字が有効ではありません");
+        Some(Token{ kind: TokenKind::TKNUM, val: None, ..}) => { //トークンはNUMだが、数字が空の時
+            eprintln!("Node token is TKNUM, but don't have an val. ");
             std::process::exit(1);
         }
         Some(_) => {
-            eprintln!("先頭が数字ではありません");
+            eprintln!("expect have TKNUM, but don't have. ");
             std::process::exit(1);
         }
         None => {
-            eprintln!("ノードが存在しません");
+            eprintln!("expect have an element, but it's empty. ");
             std::process::exit(1);
         }
     }
@@ -98,11 +98,11 @@ pub fn expect(token: &mut VecDeque<Token>, op: TokenKind) {
 
     if let Some(t) = front_token {
         if t.kind != op {
-            eprintln!("対応するトークンが存在しません"); //Displayを実装する
+            eprintln!("expect have {:?}, but you have {:?}. ", op, t.kind); 
             std::process::exit(1); 
         }
     }else {
-        eprintln!("空です");
+        eprintln!("expect have an element, but it's empty. ");
         std::process::exit(1);
     }
 
@@ -140,6 +140,7 @@ pub fn get_id_name(s: &mut String) -> Option<String> {
         s.remove(0);
     }
 
+    //先頭以外はアルファベット、数字、アンダースコア
     while s.len() > 0 {
         let c = s.chars().nth(0).unwrap();
 
@@ -154,19 +155,20 @@ pub fn get_id_name(s: &mut String) -> Option<String> {
     Some(d)
 }
 
+
 pub fn at_eof(token: &mut VecDeque<Token>) -> bool {
     let front_token = token.pop_front();
 
     match front_token {
-        Some(Token{ kind:TokenKind::TKEOF, ..}) => {
+        Some(Token{ kind:TokenKind::TKEOF, ..}) => { //コードの終端のとき
             return true;
         }
-        Some(t) => {
+        Some(t) => { //終端ではなかったとき
             token.push_front(t);
             return false;
         }
-        None => {
-            eprintln!("トークンが存在しません");
+        None => { //トークンが存在しなかったとき
+            eprintln!("expect have an element, but it's empty. ");
             std::process::exit(1);
         }
     }
@@ -198,7 +200,7 @@ pub fn judge_no_equal_symbol_token(s: &mut String) -> TokenKind {
         s.remove(0);
         return TokenKind::NEQ;
     }else{
-        eprintln!("マッチするトークンがありません");
+        eprintln!("expect have =, but don't have. ");
         std::process::exit(1);
     }
 

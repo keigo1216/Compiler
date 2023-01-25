@@ -1,6 +1,5 @@
 pub mod tokenize; //mainで使えるように公開する, サブモジュールとして宣言
 pub mod util;
-// use std::collections::VecDeque;
 
 #[derive(Debug, PartialEq)]
 pub enum TokenKind {

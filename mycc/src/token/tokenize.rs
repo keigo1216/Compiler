@@ -66,7 +66,8 @@ pub fn tokenize(s: &mut String) -> VecDeque<Token> { //有限状態オートマ�
                 v.push_back(Token::new(TokenKind::SEMI, None, None));
             }
             _ => {
-                eprintln!("トークナイズできません");
+                eprintln!("{} is not match the token pattern. ", c);
+                std::process::exit(1);
             }
         }
     }

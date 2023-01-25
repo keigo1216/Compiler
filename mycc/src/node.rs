@@ -1,8 +1,4 @@
-pub mod util;
-pub mod stack_assembly;
-
-// use std::collections::VecDeque;
-// use crate::token::{Token, TokenKind};
+pub mod generative_rule;
 
 //()は演算ではないから構文木の種類には入らない
 #[derive(Debug, PartialEq)]
