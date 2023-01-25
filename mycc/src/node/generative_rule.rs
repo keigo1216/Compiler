@@ -27,9 +27,17 @@ pub fn program(token: &mut VecDeque<Token>) -> VecDeque<Box<Node>> {
 //生成規則
 //stmt = expr ';'
 pub fn stmt(token: &mut VecDeque<Token>, vec_lvar: &mut Vec<LVar>) -> Box<Node> {
-    let node = expr(token, vec_lvar);
-    util::expect(token, TokenKind::SEMI); //最後がセミコロンでない時はエラーを出す
-    node
+    if util::consume(token, TokenKind::RETURN) {
+        let node = Node::new_node(NodeKind::NDRETURN, expr(token, vec_lvar), Box::new(Node::Nil));
+        util::expect(token, TokenKind::SEMI);
+        return node;
+    } else {
+        let node = expr(token, vec_lvar);
+        util::expect(token, TokenKind::SEMI);
+        return node;
+    }
+    // util::expect(token, TokenKind::SEMI); //最後がセミコロンでない時はエラーを出す
+    // node
 }
 
 //これの生成規則が何を意味するのかがあんまりわからない

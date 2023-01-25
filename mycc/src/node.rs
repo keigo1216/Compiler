@@ -17,6 +17,7 @@ pub enum NodeKind {
     NDGE,  //>=
     NDLVAR, //ローカル変数
     NDNUM, //整数
+    NDRETURN, //return
 }
 
 //構文木を定義する列挙体

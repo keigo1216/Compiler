@@ -20,6 +20,7 @@ pub enum TokenKind {
     RPAR,   //閉じかっこ)
     SEMI,   //セミコロン
     TKEOF,  // 入力の終わりを表すトークン
+    RETURN, //return
 }
 
 //同じモジュール内からはメンバをpubで指定しなくてもアクセスできる

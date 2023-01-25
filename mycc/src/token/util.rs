@@ -155,6 +155,24 @@ pub fn get_id_name(s: &mut String) -> Option<String> {
     Some(d)
 }
 
+//先頭の文字がreturnかどうかを判断する
+//先頭の6文字がreturnで7文字目がアルファベット、数字、アンダースコア以外だとOK
+pub fn consume_return(s: &mut String) -> bool {
+
+    if s.len() < 6 { return false; } //6文字より小さかったらそもそもだめ
+
+    //先頭がreturnで始まっている
+    if &s[0..6] == "return" { //先頭の6文字が"return"
+        let c = s.chars().nth(6).unwrap(); //returnの次の文字を見る
+        if c.is_alphanumeric() || c == '_' { //7文字目がアルファベット、数字、アンダースコア
+            return false;
+        }else{ //それ以外
+            return true;
+        }
+    } else { //先頭の6文字が"return"ではない
+        return false;
+    }
+}
 
 pub fn at_eof(token: &mut VecDeque<Token>) -> bool {
     let front_token = token.pop_front();

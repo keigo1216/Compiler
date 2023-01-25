@@ -15,6 +15,13 @@ pub fn gen(node: Box<Node>) {
             eprintln!("Nil pointerです");
             std::process::exit(1);
         }
+        Node::Elm { kind: NodeKind::NDRETURN, lhs ,..} => { //returnの時
+            gen(lhs);
+            println!("  pop rax");
+            println!("  mov rsp, rbp");
+            println!("  pop rbp");
+            println!("  ret");
+        }
         Node::Elm { kind: NodeKind::NDNUM, val: Some(_val),..} => { //数字のとき
             println!("  push {}", _val);
         }
