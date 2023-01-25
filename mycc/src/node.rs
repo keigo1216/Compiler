@@ -1,4 +1,5 @@
 pub mod generative_rule;
+pub mod util;
 
 //()は演算ではないから構文木の種類には入らない
 #[derive(Debug, PartialEq)]

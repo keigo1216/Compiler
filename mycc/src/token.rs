@@ -26,9 +26,9 @@ pub enum TokenKind {
 //同じモジュール内からはメンバをpubで指定しなくてもアクセスできる
 #[derive(Debug)]
 pub struct Token {
-    kind: TokenKind,
-    str: Option<String>,
-    val: Option<i32>,
+    pub kind: TokenKind,
+    pub str: Option<String>,
+    pub val: Option<i32>,
 }
 
 impl Token {

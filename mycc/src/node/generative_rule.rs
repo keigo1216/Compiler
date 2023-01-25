@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
-use crate::token::{Token, TokenKind, util};
-use crate::node::{Node, NodeKind};
+use crate::token::{Token, TokenKind};
+use crate::node::{Node, NodeKind, util};
 
 pub struct LVar {
     name: String, //ローカル変数
@@ -25,7 +25,7 @@ pub fn program(token: &mut VecDeque<Token>) -> VecDeque<Box<Node>> {
 
 //一つのステートメントの一番最後はセミコロンで書かれている
 //生成規則
-//stmt = expr ';'
+//stmt = expr ';' | "return" expr ";"
 pub fn stmt(token: &mut VecDeque<Token>, vec_lvar: &mut Vec<LVar>) -> Box<Node> {
     if util::consume(token, TokenKind::RETURN) {
         let node = Node::new_node(NodeKind::NDRETURN, expr(token, vec_lvar), Box::new(Node::Nil));
