@@ -2,6 +2,7 @@ use std::env;
 use mycc::{
     token,
     node,
+    parser,
 };
 
 fn main() {
@@ -9,13 +10,13 @@ fn main() {
     let argc = argv.len();
 
     if argc != 2 {
-        eprintln!("引数の数が正しくありません。"); //標準エラー出力
+        eprintln!("Incorrect number of arguments. "); //標準エラー出力
         std::process::exit(1); 
     }
 
     let mut token = token::tokenize::tokenize(&mut argv[1]); //コマンドラインで受け取った文字列をトークン列に変換する, ここまでOK
     // println!("{:?}", token);
-    let mut node = node::util::program(&mut token);
+    let mut node = node::generative_rule::program(&mut token);
     // println!("{:?}", node);
 
     
@@ -30,11 +31,12 @@ fn main() {
     println!("  mov rbp, rsp");
     println!("  sub rsp, 208");
 
+    //一行ずつ実行していく
     //ここは後で変更される気がする（たぶん）
     while !node.is_empty() {
         let elem_node = node.pop_front();
         if let Some(n) = elem_node {
-            node::stack_assembly::gen(n);
+            parser::stack_assembly::gen(n);
         }else{
             eprintln!("コードが不正です");
             std::process::exit(1)

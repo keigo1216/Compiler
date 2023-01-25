@@ -3,3 +3,4 @@
 //::を使った階層的mod宣言はできない
 pub mod node;
 pub mod token;
+pub mod parser;
