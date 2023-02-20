@@ -49,7 +49,7 @@ pub fn get_id_name(s: &mut String) -> Option<String> {
 
 //先頭の文字がreturnかどうかを判断する
 //先頭の6文字がreturnで7文字目がアルファベット、数字、アンダースコア以外だとOK
-pub fn consume_return(s: &mut String) -> bool {
+pub fn is_return(s: &mut String) -> bool {
 
     if s.len() < 6 { return false; } //6文字より小さかったらそもそもだめ
 
@@ -58,10 +58,44 @@ pub fn consume_return(s: &mut String) -> bool {
         let c = s.chars().nth(6).unwrap(); //returnの次の文字を見る
         if c.is_alphanumeric() || c == '_' { //7文字目がアルファベット、数字、アンダースコア
             return false;
-        }else{ //それ以外
+        } else { //それ以外
             return true;
         }
     } else { //先頭の6文字が"return"ではない
+        return false;
+    }
+}
+
+// if文かを判定する
+pub fn is_if(s: &mut String) -> bool {
+
+    if s.len() < 2 { return false; }
+
+    if &s[0..2] == "if" { //先頭の2文字が"if"
+        let c = s.chars().nth(2).unwrap(); //ifの次の文字を見る
+        if c.is_alphanumeric() || c == '_' { //3文字目がアルファベット、数字、アンダースコア
+            return false;
+        } else { //それ以外
+            return true;
+        }
+    } else { //先頭の二文字が"if"ではない
+        return false;
+    }
+}
+
+// else文かを判定する
+pub fn is_else(s: &mut String) -> bool {
+
+    if s.len() < 4 { return false; }
+    
+    if &s[0..4] == "else" {
+        let c = s.chars().nth(4).unwrap();
+        if c.is_alphanumeric() || c == '_' {
+            return false;
+        } else {
+            return true;
+        }
+    } else {
         return false;
     }
 }
