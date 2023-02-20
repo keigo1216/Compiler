@@ -1,4 +1,19 @@
 use crate::node::{Node, NodeKind};
+// use once_cell::sync::Lazy;
+
+// //グローバル変数の宣言
+// //IF文のラベルの識別を行う変数
+// static LAVEL_COUNT: Lazy<i32> = Lazy::new(|| 0);
+
+static mut LAVEL_COUNT: i32 = 0;
+
+// この関数はlazyトレイトを使って書き直したいところ
+pub fn count() -> i32 {
+    unsafe { 
+        LAVEL_COUNT += 1;
+        return LAVEL_COUNT;
+    }
+}
 
 //変数を宣言する関数
 //ベースポインタからoffsetだけ下がった位置に変数を宣言している
@@ -14,6 +29,20 @@ pub fn gen(node: Box<Node>) {
         Node::Nil => { //これが検出されたらただのバグ
             eprintln!("Nil pointerです");
             std::process::exit(1);
+        }
+        Node::Elm { kind: NodeKind::NDIF, cond, then, els, .. } => { //if文の時
+            let _label_count = count();
+            gen(cond); //条件文のコードを先に生成
+            println!("  pop rax");
+            println!("  cmp rax, 0");
+            println!("  je .Lelse{}", _label_count);
+            gen(then);
+            println!("  jmp .Lend{}", _label_count);
+            println!(".Lelse{}:", _label_count);
+            if *els != Node::Nil { // else文があったら, ここもう少し綺麗に書けそう
+                gen(els);
+            }
+            println!(".Lend{}:", _label_count);
         }
         Node::Elm { kind: NodeKind::NDRETURN, lhs ,..} => { //returnの時
             gen(lhs);

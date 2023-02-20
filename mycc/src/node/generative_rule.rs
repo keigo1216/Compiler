@@ -25,12 +25,30 @@ pub fn program(token: &mut VecDeque<Token>) -> VecDeque<Box<Node>> {
 
 //一つのステートメントの一番最後はセミコロンで書かれている
 //生成規則
+/*
+stmt = expr ';' 
+     | "return" expr ";"
+     | "if" "(" expr ")" stmt ("else" stmt) ?
+
+*/
 //stmt = expr ';' | "return" expr ";"
 pub fn stmt(token: &mut VecDeque<Token>, vec_lvar: &mut Vec<LVar>) -> Box<Node> {
     if util::consume(token, TokenKind::RETURN) {
+        // node = Node::new_node(NodeKind::NDRETURN, expr(token, vec_lvar), Box::new(Node::Nil));
         let node = Node::new_node(NodeKind::NDRETURN, expr(token, vec_lvar), Box::new(Node::Nil));
         util::expect(token, TokenKind::SEMI);
         return node;
+    } else if util::consume(token, TokenKind::IF) { //if文の時
+        util::expect(token, TokenKind::LPAR); // "("がないとエラー
+        let cond = expr(token, vec_lvar); //ifの条件文
+        util::expect(token, TokenKind::RPAR); // ")"がないとエラー
+        let then = stmt(token, vec_lvar); //ifの中の式
+        if util::consume(token, TokenKind::ELS) {
+            let els = stmt(token, vec_lvar);
+            return Node::new_node_if(cond, then, els);
+        } else {
+            return Node::new_node_if(cond, then, Box::new(Node::Nil));
+        }
     } else {
         let node = expr(token, vec_lvar);
         util::expect(token, TokenKind::SEMI);

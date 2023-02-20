@@ -11,9 +11,13 @@ pub fn tokenize(s: &mut String) -> VecDeque<Token> { //有限状態オートマ�
         // let c = s.chars().nth(0).unwrap();
 
         //予約語のマッチ
-        if util::consume_return(s) { //returnトークン
+        if util::is_return(s) { //returnトークン
             s.replace_range(0..6, ""); //先頭の6文字を削除する
             v.push_back(Token::new(TokenKind::RETURN, None, None));
+            continue;
+        } else if util::is_if(s) { //ifトークン
+            s.replace_range(0..2, "");
+            v.push_back(Token::new(TokenKind::IF, None, None));
             continue;
         }
 

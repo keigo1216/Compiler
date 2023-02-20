@@ -21,6 +21,8 @@ pub enum TokenKind {
     SEMI,   //セミコロン
     TKEOF,  // 入力の終わりを表すトークン
     RETURN, //return
+    IF, //if
+    ELS, //else
 }
 
 //同じモジュール内からはメンバをpubで指定しなくてもアクセスできる
