@@ -1,4 +1,4 @@
-use crate::node::{Node, NodeKind};
+use crate::syntax_tree::{Node, NodeKind};
 // use once_cell::sync::Lazy;
 
 // //グローバル変数の宣言

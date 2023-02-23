@@ -1,44 +1,4 @@
-pub mod generative_rule;
-pub mod util;
-
-//()は演算ではないから構文木の種類には入らない
-#[derive(Debug, PartialEq, Clone)]
-//列挙体はpubにすればメンバも自動的にpubになる
-pub enum NodeKind {
-    NDADD, // +
-    NDSUB, // -
-    NDMUL, // *
-    NDDIV, // /
-    NDASS, //= 代入文
-    NDEQ,  //==
-    NDNEQ, //ノットイコール
-    NDLT,  //<
-    NDLE,  //<=
-    NDGT,  //>
-    NDGE,  //>=
-    NDLVAR, //ローカル変数
-    NDNUM, //整数
-    NDRETURN, //return
-    NDIF, //if
-}
-
-//構文木を定義する列挙体
-#[derive(Debug, PartialEq, Clone)]
-pub enum Node {
-    Nil,
-    Elm {
-        kind: NodeKind,
-        lhs: Box<Node>, //Nodeのポインタを渡す
-        rhs: Box<Node>, //Nodeのポインタを渡す
-        val: Option<i32>, //NDNUMの値
-        offset: Option<i32>, //NDLVARのときのベースアドレスからのオフセット
-
-        // if文
-        cond: Box<Node>,
-        then: Box<Node>,
-        els: Box<Node>,
-    }
-}
+use super::{Node, NodeKind};
 
 impl Node {
     //数値を持たないノードの追加
