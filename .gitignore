@@ -4,3 +4,4 @@ tmp*
 *.out
 sample*
 target/
+*.lock
