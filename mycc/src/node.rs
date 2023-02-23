@@ -2,7 +2,7 @@ pub mod generative_rule;
 pub mod util;
 
 //()は演算ではないから構文木の種類には入らない
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 //列挙体はpubにすればメンバも自動的にpubになる
 pub enum NodeKind {
     NDADD, // +
@@ -23,7 +23,7 @@ pub enum NodeKind {
 }
 
 //構文木を定義する列挙体
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Node {
     Nil,
     Elm {
