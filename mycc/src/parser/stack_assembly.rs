@@ -30,6 +30,17 @@ pub fn gen(node: Box<Node>) {
             eprintln!("Nil pointerです");
             std::process::exit(1);
         }
+        Node::Elm { kind: NodeKind::NDBLOCK, mut body, .. } => { //blockの時
+            while !body.is_empty() {
+                let elem_node = body.pop_front();
+                if let Some(n) = elem_node {
+                    gen(n);
+                } else {
+                    eprintln!("コードが不正です");
+                    std::process::exit(1);
+                }
+            }
+        }
         Node::Elm { kind: NodeKind::NDIF, cond, then, els, .. } => { //if文の時
             let _label_count = count();
             gen(cond); //条件文のコードを先に生成

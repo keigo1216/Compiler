@@ -71,6 +71,14 @@ pub fn tokenize(s: &mut String) -> VecDeque<Token> { //有限状態オートマ�
                 s.remove(0);
                 v.push_back(Token::new(TokenKind::RPAR, None, None));
             }
+            '{' => {
+                s.remove(0);
+                v.push_back(Token::new(TokenKind::LBLOCK, None, None))
+            }
+            '}' => {
+                s.remove(0);
+                v.push_back(Token::new(TokenKind::RBLOCK, None, None))
+            }
             x if x.is_numeric() => {
                 v.push_back(Token::new(TokenKind::TKNUM, None,util::get_digit(s))); //get_digitで削除までしてくれる
             }

@@ -2,7 +2,7 @@ use std::env;
 use mycc::{
     token,
     parser,
-    syntax_tree,
+    syntax_tree::GenerativeRule,
 };
 
 fn main() {
@@ -14,10 +14,9 @@ fn main() {
         std::process::exit(1); 
     }
 
-    let token = token::tokenize::tokenize(&mut argv[1]); //コマンドラインで受け取った文字列をトークン列に変換する, ここまでOK
+    let mut token = token::tokenize::tokenize(&mut argv[1]); //コマンドラインで受け取った文字列をトークン列に変換する, ここまでOK
     // println!("{:?}", token);
-    let mut code_generator = syntax_tree::SyntaxTree::new(token);
-    let mut node = code_generator.program();
+    let mut node = GenerativeRule::program(&mut token);
     // println!("{:?}", node);
 
     
