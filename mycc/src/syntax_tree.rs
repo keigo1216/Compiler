@@ -1,12 +1,8 @@
 use std::collections::VecDeque;
-
-mod syntax_tree;
+mod function;
 mod generative_rule;
 mod node;
 mod util;
-
-// use std::collections::VecDeque;
-// use crate::token::Token;
 
 //()は演算ではないから構文木の種類には入らない
 #[derive(Debug, PartialEq, Clone)]
@@ -37,7 +33,6 @@ pub enum Node {
     Nil,
     Elm {
         kind: NodeKind,
-        next: Box<Node>, //次のstmtを管理する, デフォルトはNil
         lhs: Box<Node>, //Nodeのポインタを渡す
         rhs: Box<Node>, //Nodeのポインタを渡す
         val: Option<i32>, //NDNUMの値
@@ -54,15 +49,17 @@ pub enum Node {
 }
 
 //プログラムファイルで宣言されたローカル変数を扱う
-pub struct LVar {
+pub struct Obj {
     name: String, //ローカル変数
     offset: i32, //ベースポインタからのオフセット
 }
 
-// pub struct SyntaxTree {
-//     vec_lvar: Vec<LVar>, //プログラム中のローカル変数のオフセットを格納
-//     token: VecDeque<Token>, //字句解析で作成したトークンが入っている
-//     code: VecDeque<Box<Node>>, //構文木を入れるキュー
-// }
+// Function
+pub struct Function {
+    pub body: VecDeque<Box<Node>>, // 構文木を格納
+    pub locals: Vec<Obj>, //ローカル変数のベースポインタからのオフセット
+    pub stack_size: i32 //プロローグで必要なスタックサイズ
+}
 
+//生成規則を定義
 pub struct GenerativeRule{}
