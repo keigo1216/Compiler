@@ -1,14 +1,14 @@
+use std::collections::VecDeque;
+mod function;
 mod generative_rule;
 mod node;
 mod util;
-
-use std::collections::VecDeque;
-use crate::token::Token;
 
 //()は演算ではないから構文木の種類には入らない
 #[derive(Debug, PartialEq, Clone)]
 //列挙体はpubにすればメンバも自動的にpubになる
 pub enum NodeKind {
+    NDHEAD, // headを表す, 特別な意味がない
     NDADD, // +
     NDSUB, // -
     NDMUL, // *
@@ -24,6 +24,7 @@ pub enum NodeKind {
     NDNUM, //整数
     NDRETURN, //return
     NDIF, //if
+    NDBLOCK, //{}
 }
 
 //構文木を定義する列挙体
@@ -41,17 +42,24 @@ pub enum Node {
         cond: Box<Node>,
         then: Box<Node>,
         els: Box<Node>,
+
+        // ブロック
+        body: VecDeque<Box<Node>>
     }
 }
 
 //プログラムファイルで宣言されたローカル変数を扱う
-pub struct LVar {
+pub struct Obj {
     name: String, //ローカル変数
     offset: i32, //ベースポインタからのオフセット
 }
 
-pub struct SyntaxTree {
-    vec_lvar: Vec<LVar>, //プログラム中のローカル変数のオフセットを格納
-    token: VecDeque<Token>, //字句解析で作成したトークンが入っている
-    code: VecDeque<Box<Node>>, //構文木を入れるキュー
+// Function
+pub struct Function {
+    pub body: VecDeque<Box<Node>>, // 構文木を格納
+    pub locals: Vec<Obj>, //ローカル変数のベースポインタからのオフセット
+    pub stack_size: i32 //プロローグで必要なスタックサイズ
 }
+
+//生成規則を定義
+pub struct GenerativeRule{}

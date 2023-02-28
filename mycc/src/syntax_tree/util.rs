@@ -1,15 +1,16 @@
-use crate::syntax_tree::SyntaxTree;
+use std::collections::VecDeque;
 use crate::token::{Token, TokenKind};
+use crate::syntax_tree::{GenerativeRule};
 
-impl SyntaxTree {
-    //tokenの先頭がopであるかどうか
-    pub fn consume(&mut self, op: TokenKind) -> bool {
-        let front_token = self.token.pop_front();
+impl GenerativeRule {
+    //VecDequeの先頭要素のKindがopと一致したらTrue, それ以外はFalseを返す
+    pub fn consume(token: &mut VecDeque<Token>, op: TokenKind) -> bool{
+        let front_token = token.pop_front();
 
         if let Some(t) = front_token { //front_tokenがSome()だったら実行、中身がtに入る
             if t.kind == op {true}
             else {
-                self.token.push_front(t);
+                token.push_front(t);
                 false
             }
         }else{ //front_tokenがNoneだったらエラー
@@ -18,24 +19,25 @@ impl SyntaxTree {
         }
     }
 
-    //tokenの先頭が数値（TokenKind::ID）であるかどうか
-    pub fn consume_ident(&mut self) -> bool {
-        let front_token = self.token.pop_front(); //先頭のトークンを取得
+    //先頭のトークンがIDトークンかどうか
+    //実際に取り出したりしない
+    pub fn consume_ident(token: &mut VecDeque<Token>) -> bool {
+        let front_token = token.pop_front(); //先頭のトークンを取得
 
         match front_token {
             Some(t @ Token { kind:TokenKind::ID, ..}) => {
-                self.token.push_front(t);
+                token.push_front(t);
                 return true;
             }
             Some(t) => {
-                self.token.push_front(t);
+                token.push_front(t);
                 return false;
             }
             None => {
                 eprintln!("expect have an element, but it's empty. ");
                 std::process::exit(1);
             }
-        }   
+        }
     }
 
     //primary関数で使う
@@ -45,9 +47,9 @@ impl SyntaxTree {
     //consume_identと一緒に使ってください
     //エラーが出るから変なバグには繋がらないと思います
     //半分ぐらいconsume_identと同じことしているのでまとめたいところ
-    pub fn expect_id(&mut self) -> String {
+    pub fn expect_id(token: &mut VecDeque<Token>) -> String {
 
-        let front_token = self.token.pop_front();
+        let front_token = token.pop_front();
 
         match front_token {
             Some(Token { kind:TokenKind::ID, str:Some(s), ..}) => { //正常なとき
@@ -69,8 +71,8 @@ impl SyntaxTree {
     }
 
     //VecDequeの先頭要素が数字の時その先頭要素を返し、それ以外の時エラー出力する
-    pub fn expect_number(&mut self) -> i32{
-        let front_token = self.token.pop_front();
+    pub fn expect_number(token: &mut VecDeque<Token>) -> i32{
+        let front_token = token.pop_front();
         
         match front_token {
             Some(Token { kind: TokenKind::TKNUM, val: Some(_val), ..}) => { //正常なとき
@@ -93,8 +95,8 @@ impl SyntaxTree {
 
     //VecDequeの先頭要素のKindがopと一致していなかったらエラー出力する
     //全てのパターンに一致しなかったトークン用
-    pub fn expect(&mut self, op: TokenKind) {
-        let front_token = self.token.pop_front();
+    pub fn expect(token: &mut VecDeque<Token>, op: TokenKind) {
+        let front_token = token.pop_front();
 
         if let Some(t) = front_token {
             if t.kind != op {
@@ -108,15 +110,15 @@ impl SyntaxTree {
 
     }
 
-    pub fn at_eof(&mut self) -> bool {
-        let front_token = self.token.pop_front();
-    
+    pub fn at_eof(token: &mut VecDeque<Token>) -> bool {
+        let front_token = token.pop_front();
+
         match front_token {
             Some(Token{ kind:TokenKind::TKEOF, ..}) => { //コードの終端のとき
                 return true;
             }
             Some(t) => { //終端ではなかったとき
-                self.token.push_front(t);
+                token.push_front(t);
                 return false;
             }
             None => { //トークンが存在しなかったとき

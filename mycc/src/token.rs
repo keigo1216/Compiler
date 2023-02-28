@@ -1,7 +1,7 @@
 pub mod tokenize; //mainで使えるように公開する, サブモジュールとして宣言
 pub mod util;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum TokenKind {
     ID,     //今は一文字の変数を表す
     ADD,    //足し算の記号
@@ -18,6 +18,8 @@ pub enum TokenKind {
     TKNUM,  // 整数トークン
     LPAR,   //開きかっこ(
     RPAR,   //閉じかっこ)
+    LBLOCK, //開き中カッコ{
+    RBLOCK, //閉じ中カッコ}
     SEMI,   //セミコロン
     TKEOF,  // 入力の終わりを表すトークン
     RETURN, //return
@@ -26,7 +28,7 @@ pub enum TokenKind {
 }
 
 //同じモジュール内からはメンバをpubで指定しなくてもアクセスできる
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Token {
     pub kind: TokenKind,
     pub str: Option<String>,
@@ -42,3 +44,5 @@ impl Token {
         }
     }
 }
+
+pub struct Tokenize{}
