@@ -44,3 +44,5 @@ impl Token {
         }
     }
 }
+
+pub struct Tokenize{}

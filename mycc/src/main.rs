@@ -14,7 +14,7 @@ fn main() {
         std::process::exit(1); 
     }
 
-    let mut token = token::tokenize::tokenize(&mut argv[1]); //コマンドラインで受け取った文字列をトークン列に変換する, ここまでOK
+    let mut token = token::Tokenize::tokenize(&mut argv[1]); //コマンドラインで受け取った文字列をトークン列に変換する, ここまでOK
     // println!("{:?}", token);
     let prog = GenerativeRule::program(&mut token);
     // println!("{:?}", node);
