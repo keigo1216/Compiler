@@ -8,9 +8,20 @@ impl CodeGen {
         }
     }
 
+    pub fn align_to(n: i32, align: i32) -> i32 {
+        return (n + align - 1) / align * align;
+    }
+
+    pub(super) fn assign_lvar_offsets(prog: &mut Function) {
+        let offset = prog.locals.len() as i32;
+        prog.stack_size = CodeGen::align_to(offset, 16);
+    }
+
     // プログラムを生成する関数
     // これだけpublicに設定する（たぶん）
-    pub fn codegen(&mut self, prog: Function) {
+    pub fn codegen(&mut self, mut prog: Function) {
+        CodeGen::assign_lvar_offsets(&mut prog);
+
         println!(".intel_syntax noprefix");
         println!(".globl main");
         println!("main:");
@@ -20,7 +31,7 @@ impl CodeGen {
         // 変数26個分の領域を確保する
         println!("  push rbp");
         println!("  mov rbp, rsp");
-        println!("  sub rsp, 208");
+        println!("  sub rsp, {}", prog.stack_size);
 
         //一行ずつ実行していく
         //ここは後で変更される気がする
