@@ -28,7 +28,7 @@ impl CodeGen {
         while !node.is_empty() {
             let elem_node = node.pop_front();
             if let Some(n) = elem_node {
-                CodeGen::gen(self, n);
+                CodeGen::gen_stmt(self, n);
             }else{
                 eprintln!("コードが不正です");
                 std::process::exit(1)
@@ -36,8 +36,8 @@ impl CodeGen {
         }
 
         // node::stack_assembly::gen(node); //アセンブリ言語を出力
-        println!("  pop rax");
-        // println!(".L.return:");
+        // println!("  pop rax");
+        println!(".L.return:");
         println!("  mov rsp, rbp");
         println!("  pop rbp");
         println!("  ret");

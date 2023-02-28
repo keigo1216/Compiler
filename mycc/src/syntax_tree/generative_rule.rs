@@ -115,9 +115,9 @@ impl GenerativeRule {
             }else if GenerativeRule::consume(token, TokenKind::LE) {
                 node = Node::new_node(NodeKind::NDLE, node, GenerativeRule::add(token, vec_obj));
             }else if GenerativeRule::consume(token, TokenKind::GT) {
-                node = Node::new_node(NodeKind::NDGT, node, GenerativeRule::add(token, vec_obj));
+                node = Node::new_node(NodeKind::NDLT, GenerativeRule::add(token, vec_obj), node);
             }else if GenerativeRule::consume(token, TokenKind::GE) {
-                node = Node::new_node(NodeKind::NDGE, node, GenerativeRule::add(token, vec_obj));
+                node = Node::new_node(NodeKind::NDLE, GenerativeRule::add(token, vec_obj), node);
             }else{
                 return node;
             }
