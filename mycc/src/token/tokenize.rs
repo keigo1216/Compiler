@@ -19,6 +19,9 @@ pub fn tokenize(s: &mut String) -> VecDeque<Token> { //有限状態オートマ�
             s.replace_range(0..2, "");
             v.push_back(Token::new(TokenKind::IF, None, None));
             continue;
+        } else if util::is_else(s) {
+            s.replace_range(0..4, "");
+            v.push_back(Token::new(TokenKind::ELS, None, None));
         }
 
         //一文字のパターンマッチ

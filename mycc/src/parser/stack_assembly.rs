@@ -10,11 +10,11 @@ impl CodeGen {
         println!("  pop {}", reg);
     }
 
-
-    // pub(super) fn count(&mut self) -> i32 {
-    //     self.label_count += 1;
-    //     return self.label_count
-    // }
+    // ジャンプの時に使うラベル
+    pub(super) fn count(&mut self) -> i32 {
+        self.label_count += 1;
+        return self.label_count
+    }
 
     //ベースポインタから_offsetの位置のアドレスをraxに格納
     pub(super) fn gen_addr(_offset: i32) {
@@ -129,6 +129,19 @@ impl CodeGen {
                         std::process::exit(1);
                     }
                 }
+            }
+            Node::Elm { kind: NodeKind::NDIF, cond, then, els, ..} => { // if
+                let _label_count = CodeGen::count(self);
+                CodeGen::gen_expr(self, cond);
+                println!("  cmp rax, 0");
+                println!("  je .L.else.{}", _label_count);
+                CodeGen::gen_stmt(self, then);
+                println!("  jmp .L.end.{}", _label_count);
+                println!(".L.else.{}:", _label_count);
+                if *els != Node::Nil {
+                    CodeGen::gen_stmt(self, els);
+                }
+                println!(".L.end.{}:", _label_count);
             }
             Node::Elm { kind: NodeKind::NDRETURN, lhs, ..} => { // return
                 CodeGen::gen_stmt(self, lhs);
