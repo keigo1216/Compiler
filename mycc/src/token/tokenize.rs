@@ -8,7 +8,6 @@ impl Tokenize {
         let mut v: VecDeque<Token> = VecDeque::new();
 
         while s.len() > 0 {
-            // let c = s.chars().nth(0).unwrap();
 
             //予約語のマッチ
             if Tokenize::is_return(s) { //returnトークン
