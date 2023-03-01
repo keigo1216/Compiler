@@ -37,7 +37,7 @@ impl GenerativeRule {
             let node = Node::new_node(NodeKind::NDRETURN, GenerativeRule::expr(token, vec_obj), Box::new(Node::Nil));
             GenerativeRule::expect(token, TokenKind::SEMI);
             return node;
-        } else if GenerativeRule::consume(token, TokenKind::IF) { //if文の時
+        } else if GenerativeRule::consume(token, TokenKind::IF) { // "if" "(" expr ")" stmt ("else" stmt) ?
             GenerativeRule::expect(token, TokenKind::LPAR); // "("がないとエラー
             let cond = GenerativeRule::expr(token, vec_obj); //ifの条件文
             GenerativeRule::expect(token, TokenKind::RPAR); // ")"がないとエラー
@@ -48,6 +48,25 @@ impl GenerativeRule {
             } else {
                 return Node::new_node_if(cond, then, Box::new(Node::Nil));
             }
+        } else if GenerativeRule::consume(token, TokenKind::FOR) { 
+            let mut init: Box<Node> = Box::new(Node::Nil);
+            let mut cond: Box<Node> = Box::new(Node::Nil);
+            let mut inc: Box<Node> = Box::new(Node::Nil);
+            GenerativeRule::expect(token, TokenKind::LPAR);
+            if !GenerativeRule::consume(token, TokenKind::SEMI) {
+                init = GenerativeRule::expr(token, vec_obj);
+                GenerativeRule::expect(token, TokenKind::SEMI);
+            }
+            if !GenerativeRule::consume(token, TokenKind::SEMI) { //次のトークンがセミコロンならスキップ
+                cond = GenerativeRule::expr(token, vec_obj);
+                GenerativeRule::expect(token, TokenKind::SEMI);
+            }
+            if !GenerativeRule::consume(token, TokenKind::RPAR) { //次のトークンが")"ならスキップ
+                inc = GenerativeRule::expr(token, vec_obj);
+                GenerativeRule::expect(token, TokenKind::RPAR);
+            }
+            let then = GenerativeRule::stmt(token, vec_obj); //forの中身
+            return Node::new_node_for(init, cond, inc, then);
         } else if GenerativeRule::consume(token, TokenKind::LBLOCK) { // "{" stmt* "}"
             let mut code_block: VecDeque<Box<Node>> = VecDeque::new();
             while !GenerativeRule::consume(token, TokenKind::RBLOCK) { // "}"トークンが来るまで

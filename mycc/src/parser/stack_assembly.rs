@@ -143,6 +143,25 @@ impl CodeGen {
                 }
                 println!(".L.end.{}:", _label_count);
             }
+            Node::Elm { kind: NodeKind::NDFOR, cond, then, init, inc, ..} => { // for
+                let _label_count = CodeGen::count(self);
+                if *cond != Node::Nil {
+                    CodeGen::gen_stmt(self, init);
+                }
+                println!(".L.begin.{}:", _label_count);
+                if *cond != Node::Nil {
+                    CodeGen::gen_expr(self, cond);
+                    println!("  cmp rax, 0");
+                    println!("  je  .L.end.{}", _label_count);
+                }
+                CodeGen::gen_stmt(self, then);
+                if *inc != Node::Nil {
+                    CodeGen::gen_expr(self, inc);
+                }
+                println!("  jmp .L.begin.{}", _label_count);
+                println!(".L.end.{}:", _label_count);
+                return;
+            }
             Node::Elm { kind: NodeKind::NDRETURN, lhs, ..} => { // return
                 CodeGen::gen_stmt(self, lhs);
                 println!("  jmp .L.return");
