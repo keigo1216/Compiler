@@ -26,6 +26,9 @@ impl Tokenize {
                 s.replace_range(0..3, "");
                 v.push_back(Token::new(TokenKind::FOR, None, None));
                 continue;
+            } else if Tokenize::is_while(s) { //whileトークン
+                s.replace_range(0..5, "");
+                v.push_back(Token::new(TokenKind::WHILE, None, None));
             }
 
             //一文字のパターンマッチ

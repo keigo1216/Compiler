@@ -88,6 +88,10 @@ impl Node {
         })
     }
 
+    pub fn new_node_while (cond: Box<Node>, then: Box<Node>) -> Box<Node> {
+        Node::new_node_for(Box::new(Node::Nil), cond, Box::new(Node::Nil), then)
+    }
+
     //ブロックを持つノードの追加
     pub fn new_node_block(body: VecDeque<Box<Node>>) -> Box<Node> {
         Box::new(Node::Elm { 
