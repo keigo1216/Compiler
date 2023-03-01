@@ -145,7 +145,7 @@ impl CodeGen {
             }
             Node::Elm { kind: NodeKind::NDFOR, cond, then, init, inc, ..} => { // for
                 let _label_count = CodeGen::count(self);
-                if *cond != Node::Nil {
+                if *init != Node::Nil {
                     CodeGen::gen_stmt(self, init);
                 }
                 println!(".L.begin.{}:", _label_count);

@@ -118,6 +118,22 @@ impl Tokenize {
         }
     }
 
+    pub(super) fn is_while(s: &mut String) -> bool {
+
+        if s.len() < 5 { return false; }
+
+        if &s[0..5] == "while" {
+            let c = s.chars().nth(5).unwrap();
+            if c.is_alphanumeric() || c == '_' {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     //代入文かboolen文なのかを判断する
     //適切なTokenKindを返す
     //いらなくなった文字はこちらで削除する

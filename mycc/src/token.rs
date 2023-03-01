@@ -11,10 +11,10 @@ pub enum TokenKind {
     ASS,    //=　代入
     EQ,     //==
     NEQ,    //ノットイコール
-    LT,    //<
-    LE,    //<=
-    GT,    //>
-    GE,    //>=
+    LT,     //<
+    LE,     //<=
+    GT,     //>
+    GE,     //>=
     TKNUM,  // 整数トークン
     LPAR,   //開きかっこ(
     RPAR,   //閉じかっこ)
@@ -23,9 +23,10 @@ pub enum TokenKind {
     SEMI,   //セミコロン
     TKEOF,  // 入力の終わりを表すトークン
     RETURN, //return
-    IF, //if
-    ELS, //else
-    FOR, //for
+    IF,     //if
+    ELS,    //else
+    FOR,    //for
+    WHILE,  // while
 }
 
 //同じモジュール内からはメンバをpubで指定しなくてもアクセスできる

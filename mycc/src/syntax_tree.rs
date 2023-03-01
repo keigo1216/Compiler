@@ -24,7 +24,7 @@ pub enum NodeKind {
     NDNUM, //整数
     NDRETURN, //return
     NDIF, //if
-    NDFOR, //for
+    NDFOR, //for or while
     NDBLOCK, //{}
 }
 

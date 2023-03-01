@@ -30,6 +30,8 @@ impl GenerativeRule {
         | "{" stmt* "}"
         | "return" expr ";"
         | "if" "(" expr ")" stmt ("else" stmt) ?
+        | "for" "(" expr? ";" expr? ";" expr? ")" stmt
+        | "while" "(" expr ")" stmt
     */
     //stmt = expr ';' | "return" expr ";"
     pub fn stmt(token: &mut VecDeque<Token>, vec_obj: &mut Vec<Obj>) -> Box<Node> {
@@ -48,7 +50,7 @@ impl GenerativeRule {
             } else {
                 return Node::new_node_if(cond, then, Box::new(Node::Nil));
             }
-        } else if GenerativeRule::consume(token, TokenKind::FOR) { 
+        } else if GenerativeRule::consume(token, TokenKind::FOR) { // "for" "(" expr? ";" expr? ";" expr? ")" stmt
             let mut init: Box<Node> = Box::new(Node::Nil);
             let mut cond: Box<Node> = Box::new(Node::Nil);
             let mut inc: Box<Node> = Box::new(Node::Nil);
@@ -67,6 +69,12 @@ impl GenerativeRule {
             }
             let then = GenerativeRule::stmt(token, vec_obj); //forの中身
             return Node::new_node_for(init, cond, inc, then);
+        } else if GenerativeRule::consume(token, TokenKind::WHILE) { // "while" "(" expr ")" stmt
+            GenerativeRule::expect(token, TokenKind::LPAR); // "("を削除
+            let cond = GenerativeRule::expr(token, vec_obj);
+            GenerativeRule::expect(token, TokenKind::RPAR); // ")"を削除
+            let then = GenerativeRule::stmt(token, vec_obj);
+            return Node::new_node_while(cond, then);
         } else if GenerativeRule::consume(token, TokenKind::LBLOCK) { // "{" stmt* "}"
             let mut code_block: VecDeque<Box<Node>> = VecDeque::new();
             while !GenerativeRule::consume(token, TokenKind::RBLOCK) { // "}"トークンが来るまで
