@@ -25,6 +25,7 @@ pub enum TokenKind {
     RETURN, //return
     IF, //if
     ELS, //else
+    FOR, //for
 }
 
 //同じモジュール内からはメンバをpubで指定しなくてもアクセスできる

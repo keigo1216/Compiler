@@ -18,9 +18,13 @@ impl Tokenize {
                 s.replace_range(0..2, "");
                 v.push_back(Token::new(TokenKind::IF, None, None));
                 continue;
-            } else if Tokenize::is_else(s) {
+            } else if Tokenize::is_else(s) { //elseトークン
                 s.replace_range(0..4, "");
                 v.push_back(Token::new(TokenKind::ELS, None, None));
+                continue;
+            } else if Tokenize::is_for(s) { //forトークン
+                s.replace_range(0..3, "");
+                v.push_back(Token::new(TokenKind::FOR, None, None));
                 continue;
             }
 

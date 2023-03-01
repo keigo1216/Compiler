@@ -85,6 +85,22 @@ impl Tokenize {
         }
     }
 
+    pub(super) fn is_for(s: &mut String) -> bool {
+
+        if s.len() < 3 { return false; }
+
+        if &s[0..3] == "for" {
+            let c = s.chars().nth(3).unwrap();
+            if c.is_alphanumeric() || c == '_' {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     // else文かを判定する
     pub(super) fn is_else(s: &mut String) -> bool {
 

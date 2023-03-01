@@ -24,6 +24,7 @@ pub enum NodeKind {
     NDNUM, //整数
     NDRETURN, //return
     NDIF, //if
+    NDFOR, //for
     NDBLOCK, //{}
 }
 
@@ -38,10 +39,12 @@ pub enum Node {
         val: Option<i32>, //NDNUMの値
         offset: Option<i32>, //NDLVARのときのベースアドレスからのオフセット
 
-        // if文
+        // if文, for文
         cond: Box<Node>,
         then: Box<Node>,
         els: Box<Node>,
+        init: Box<Node>,
+        inc: Box<Node>,
 
         // ブロック
         body: VecDeque<Box<Node>>
